@@ -8,6 +8,7 @@ The problem is divided into two parts: binary classification and multilabel clas
 
 
 ## Data Collection & Description
+
 Since real predictive maintenance datasets are generally difficult to obtain due to confidentiality, I obtained a synthetic dataset from the UCI Machine Learning Repository that reflects real predictive maintenance encountered in the industry.
 
 Source:
@@ -59,10 +60,15 @@ The first 2 variables: <b>UID</b> and <b>productID</b> do not seem to have an in
 
 We can see that the Torque [Nm] and Rotational speed [rpm] variables are strongly negatively correlated, while the Process temperature [K] and Air temperature [K] are strongly positively correlated, which might lead to Multicollinearity.
 However, this is not surprising because these highly correlated variables were derived based on similar components, including temperature and machine forces. 
+
 Additionally, Torque [Nm] is moderately positively correlated to OSF (overstrain failure) and HDF (heat dissipation failure); hence, it is expected that Rotational speed [rpm] has some negative correlation with these failure modes. This suggests that while a higher Torque may result in overstrain and heat dissipation failure, a higher Rotational speed may mitigate these issues.
+
 Besides, Tool wear [min] is also positively correlated to OSF (overstrain failure) and TWF (tool wear failure), implying that tool wear is likely one of the causes of these two types of failure.
 
-Principal Component Analysis (PCA)
+
+
+### Principal Component Analysis (PCA)
+
 PCA is used for further data exploration instead of doing feature selection since the dataset is not high dimensional. The results of PCA indicated that over 99% of the variance in the dataset can be explained by the first 3 principal components. 
  
 <p align="center">
@@ -85,6 +91,7 @@ The bar plot of Principal Components loadings makes it easy to understand what t
 <li> PC3 is associated with Tool wear [min]. </li>
 
 ### Variable Importance
+
 Furthermore, the variable importances were calculated based on the features’ predictive power in the Random Forest algorithm. Based on the Gini Index, the top 3 important features are the machine power variables (Torque (Nm), Rotational Speed [rpm]) and Tool wear [min].
 
 <p align="center">
@@ -96,7 +103,9 @@ Furthermore, the variable importances were calculated based on the features’ p
 
 
 ## Machine Learning Models
+
 ### Binary Classification
+
 The first question this research seeks to answer is "Will a machine malfunction in the near future?" It's a binary classification with a yes/no answer ("yes" = 1, "no" = 0).
 
 Random Forest and XGBoost are chosen for this problem.
@@ -110,6 +119,7 @@ The algorithms were selected primarily for the following reasons:
 (3)	XGBoost is speed-optimized by incorporating additional approximations and memory-saving tricks. Additionally, XGBoost facilitates custom constraints and regularization to prevent overfitting.
 
 The Training set is 70% of the dataset and the Test set is 30%, which are both randomly sampled without replacement .
+
 
 #### Random Forest
 		 	 	 		
@@ -148,7 +158,9 @@ I chose Multivariate Random Forest for this problem since the algorithm can hand
 
 
 ## Results
+
 ### Binary Classification
+
 <p align="center">
 <img width="582" alt="Screen Shot 2023-03-16 at 3 57 36 PM" src="https://user-images.githubusercontent.com/122824839/225741138-9e3daa45-6380-4077-8de9-e4e877b3c13c.png">
 </p>
@@ -179,6 +191,7 @@ Overall, Multivariate Random Forest performed well and achieved a Classification
 <p align="center">
 <b>Figure 8</b>. Multi-label Classification Accuracy
 </p>
+
 
 ## Conclusion
 
