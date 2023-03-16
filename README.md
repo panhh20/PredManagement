@@ -9,9 +9,12 @@ The problem is divided into two parts: binary classification and multilabel clas
 
 ## Data Collection & Description
 Since real predictive maintenance datasets are generally difficult to obtain due to confidentiality, I obtained a synthetic dataset from the UCI Machine Learning Repository that reflects real predictive maintenance encountered in the industry.
+
 Source:
 UCI Machine Learning Repository
+
 https://archive.ics.uci.edu/ml/datasets/AI4I%202020%20Predictive%20Maintenance%20Dataset 
+
 Author: Stephan Matzka, School of Engineering - Technology and Life, Hochschule für Technik und Wirtschaft Berlin, 12459 Berlin, Germany, stephan.matzka '@' htw-berlin.de
 
 <b>Data Set Description (UCI Machine Learning Repository):</b>
@@ -46,8 +49,13 @@ The first 2 variables: <b>UID</b> and <b>productID</b> do not seem to have an in
 <b>Type</b> is a categorical variable so I created dummy variables for it, and then standardized all variables before calculating the Correlation matrix
 
 
- 
+<p align="center">
+<img width="373" alt="Correlation matrix" src="https://user-images.githubusercontent.com/122824839/225740452-3d19086e-08c8-4a9c-88a9-a70d082cc36b.png">
+</p>
+<p align="center">
 <b>Figure 1</b>. Correlation matrix
+
+</p>
 
 We can see that the Torque [Nm] and Rotational speed [rpm] variables are strongly negatively correlated, while the Process temperature [K] and Air temperature [K] are strongly positively correlated, which might lead to Multicollinearity.
 However, this is not surprising because these highly correlated variables were derived based on similar components, including temperature and machine forces. 
@@ -57,24 +65,34 @@ Besides, Tool wear [min] is also positively correlated to OSF (overstrain failur
 Principal Component Analysis (PCA)
 PCA is used for further data exploration instead of doing feature selection since the dataset is not high dimensional. The results of PCA indicated that over 99% of the variance in the dataset can be explained by the first 3 principal components. 
  
+<p align="center">
+<img width="540" alt="Screen Shot 2023-03-16 at 3 56 14 PM" src="https://user-images.githubusercontent.com/122824839/225741134-b53261bb-5b0b-4542-8dc1-dc0f34b4d3f4.png">
+<p align="center">
 <b>Figure 2</b>. R PCA summary 
 
 
 
-
- 
-
+<p align="center">
+<img width="440" alt="PCA plots" src="https://user-images.githubusercontent.com/122824839/225740448-c80dbc6d-ea8f-4a8e-b6f3-def4a10fc681.png">
+<p align="center">
 <b>Figure 3</b>. Principal Component Loadings
+</p>
+
 The bar plot of Principal Components loadings makes it easy to understand what they represent:
-●	PC1 consists primarily of two temperature variables.
-●	PC2 is represented by machine power, which is the combination of Rotational Speed [rpm] and Torque [Nm] values.
-●	PC3 is associated with Tool wear [min].
+<li> PC1 consists primarily of two temperature variables. </li>
+<li> PC2 is represented by machine power, which is the combination of Rotational Speed [rpm] and Torque [Nm] values. </li>
+<li> PC3 is associated with Tool wear [min]. </li>
 
 ### Variable Importance
 Furthermore, the variable importances were calculated based on the features’ predictive power in the Random Forest algorithm. Based on the Gini Index, the top 3 important features are the machine power variables (Torque (Nm), Rotational Speed [rpm]) and Tool wear [min].
- 
 
+<p align="center">
+<img width="421" alt="Variable importance" src="https://user-images.githubusercontent.com/122824839/225740443-f61a991c-9b69-4564-a730-ec81401741ce.png"
+
+<p align="center">
 <b>Figure 4</b>. Variable Importance Plot: Random Forest
+</p>
+
 
 ## Machine Learning Models
 ### Binary Classification
@@ -92,23 +110,34 @@ The algorithms were selected primarily for the following reasons:
 
 The Training set is 70% of the dataset and the Test set is 30%, which are both randomly sampled without replacement .
 
-### Random Forest
+#### Random Forest
 		 	 	 		
 In the Random Forest model, Cross-validation was performed for mtry as a part of hyperparameter tuning. The Random Forest model was repeated many times to test different values of mtry (from 1→ 6 as there are 6 predictors), then selected the optimal mtry that minimizes out-of-bag (OOB) error and refit the model. As a result, the optimal mtry is 5. 
 
- 
+<p align="center">
+<img width="342" alt="Optimal mtry" src="https://user-images.githubusercontent.com/122824839/225740439-fb58af3f-b4eb-4b87-929a-669a75c946ab.png">
+<p align="center">
 <b>Figure 5</b>. Optimal mtry for Random Forest
+</p>
 
 I also plotted the OOB Error rate against the number of trees to find the optimal number of trees. The plot shows that after about 250 trees, the error rate begins to flatten. As a result, I chose ntree = 250.
- 
-<b>Figure 6</b>. Random Forest: OOB Error Rate vs Number of Trees
 
-### XGBoost
+<p align="center"> 
+<img width="432" alt="RF OOB error" src="https://user-images.githubusercontent.com/122824839/225740434-7d629f9c-7ed0-4498-b764-7982dc417b70.png">
+<p align="center">
+<b>Figure 6</b>. Random Forest: OOB Error Rate vs Number of Trees
+</p>
+
+#### XGBoost
 For the XGBoost Classification model, it’s observed that the optimal hyperparameters were maximum depth of 4 and learning rate of 0.01 using Grid Search.
 
- 
+<p align="center"> 
+<img alt="XGBoost" src="https://user-images.githubusercontent.com/122824839/225741096-41abc0a7-e0e3-45bd-97f2-215095379fb3.png">
+<p align="center">
 <b>Figure 7</b>. Example of a boosted tree in the XGBoost model (Tree 5)
-Multi-label Classification
+</p>
+
+### Multi-label Classification
 
 The second question this research seeks to answer is "Which type of machine failure would it be?" It is a multilabel classification problem in which each observation may have many responses.
 
@@ -119,15 +148,20 @@ I chose Multivariate Random Forest for this problem since the algorithm can hand
 
 ## Results
 ### Binary Classification
-
-
+<p align="center">
+<img width="582" alt="Screen Shot 2023-03-16 at 3 57 36 PM" src="https://user-images.githubusercontent.com/122824839/225741138-9e3daa45-6380-4077-8de9-e4e877b3c13c.png">
+</p>
 
 Two model evaluation metrics include Accuracy and False Negative Rate, are calculated as follows:
  
 where:
+
 TP = Number of True Positives
+
 TN = Number of True Negatives
+
 FP = Number of False Positives
+
 FN = Number of False Negatives
 
 
@@ -139,13 +173,11 @@ In this case, the Random Forest model appears to perform better. Random Forest h
 
 Overall, Multivariate Random Forest performed well and achieved a Classification accuracy of greater than 99.9% for each failure mode.
 
-
-
-   
-
-
-Figure 8. Multi-label Classification Accuracy
-
+<p align="center">
+<img width="395" alt="Screen Shot 2023-03-16 at 3 57 55 PM" src="https://user-images.githubusercontent.com/122824839/225741144-d3740ade-fcdf-4797-8ba3-79099e506e63.png">
+<p align="center">
+<b>Figure 8</b>. Multi-label Classification Accuracy
+</p>
 
 ## Conclusion
 
